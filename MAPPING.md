@@ -1,59 +1,51 @@
-# omni-sec — Architecture & Module Mapping
+# omni-sec Architecture & Knowledge Mapping
 
-## System Architecture
+> Comprehensive index of cybersecurity knowledge bases, reasoning pipelines, standalone utility scripts, and output templates.
 
-`omni-sec` is organized into a clean modular taxonomy:
-
-```text
+```
 omni-sec/
 ├── SKILL.md                          # Master Orchestrator, Mode Dispatcher & Safety Boundaries
-├── MAPPING.md                        # Architecture blueprint & knowledge index
-├── README.md                         # Project documentation & usage guide
+├── MAPPING.md                        # This architecture blueprint & knowledge index
+├── README.md                         # Quick start & toolchain documentation
+├── LICENSE                           # MIT License
+├── CONTRIBUTING.md                   # Ethical guidelines & contribution standard
+├── .gitignore                        # Python / OS filters
+├── .github/workflows/ci.yml          # Automated Pytest CI Workflow
 │
 ├── knowledge/                        # Domain Knowledge Bases & Attack Vectors
-│   ├── web-vulnerabilities.md        # OWASP Top 10, logic bugs, SQLi, XSS, SSRF, IDOR, SSTI
-│   ├── crypto-attacks.md             # RSA (Wiener, small e), XOR, AES modes, ECC basics, PRNG flaws
-│   ├── forensics-multimodal.md       # Magic bytes, EXIF, LSB stego, PCAP dissection, audio spectrum
-│   ├── reverse-engineering.md        # x86/x64 assembly, Ghidra/GDB tips, packing, anti-reversing
-│   ├── binary-exploitation.md        # Buffer overflows, format strings, shellcoding, ROP, heap basics
-│   └── secure-coding-standards.md    # Defensive remediation, input sanitization, safe frameworks
+│   ├── web-vulnerabilities.md        # OWASP Top 10, SQLi, XSS, SSRF, IDOR, SSTI, Prototype Pollution
+│   ├── crypto-attacks.md             # RSA (Wiener, small e, Fermat), XOR, AES ECB/CBC, LCG PRNG
+│   ├── forensics-multimodal.md       # Magic bytes lookup, EXIF, LSB Stego, PCAP, Audio Spectrogram
+│   ├── reverse-engineering.md        # x86/x64 assembly, Ghidra/GDB tips, bytecode (pyc/apk/wasm)
+│   ├── binary-exploitation.md        # Stack buffer overflows, ret2win, ret2libc, format string, pwntools
+│   └── secure-coding-standards.md    # Defensive patching, sanitasi input, password hashing (Argon2id)
 │
 ├── reasoning/                        # 5-Stage Security Reasoning Pipelines
-│   ├── recon-discovery.md            # Reconnaissance & Attack Surface Mapping
-│   ├── vulnerability-triage.md       # Root Cause & Weakness Classification (CWE/CVSS)
-│   ├── exploit-reasoning.md          # Deterministic Solver Construction & Payload Engineering
-│   └── defensive-remediation.md      # Patching, Hardening & Security Advisory Formulation
+│   ├── recon-discovery.md            # Stage 1: Target classification & multimodal surface mapping
+│   ├── vulnerability-triage.md       # Stage 2: Root cause analysis (Symptom vs Cause) & CVSS
+│   ├── exploit-reasoning.md          # Stage 3: Python deterministic solver generation
+│   └── defensive-remediation.md      # Stages 4 & 5: Patch engineering diffs & CTF write-ups
 │
-├── scripts/                          # Zero-Heavy-Dependency Python Security Tools
+├── scripts/                          # Standalone Python 3 Toolkits (Zero External Dependencies)
 │   ├── __init__.py                   # Package marker
-│   ├── cipher_toolkit.py             # Multi-layer encoding/decoding & hash analyzer
-│   ├── stego_inspector.py            # File header, magic byte, EXIF & trailing byte scanner
-│   └── pcap_dissector.py             # Minimalist PCAP protocol stream & credential extractor
+│   ├── cipher_toolkit.py             # Multi-layer decoder (Base64, Hex, ROT13, Caesar, XOR, Hash ID)
+│   ├── rsa_toolkit.py                # Pure-Python RSA Solvers (Wiener, Fermat, Small e, Common Modulus)
+│   ├── stego_inspector.py            # Magic bytes, trailing EOF data, polyglot ZIP, PNG LSB extractor
+│   ├── pwn_helper.py                 # Pwn utilities (p32/p64/u32/u64, De Bruijn cyclic offset generator)
+│   └── pcap_dissector.py             # PCAP parser, cleartext credential & HTTP request extractor
 │
-├── templates/                        # Structured Output Templates
-│   ├── ctf-writeup-template.md       # Professional, publishable CTF challenge write-up
-│   ├── vulnerability-advisory.md     # Formal security audit finding report
-│   └── secure-patch-template.md      # Before/After patch diff with validation tests
+├── templates/                        # Standardized Output Formats
+│   ├── ctf-writeup-template.md       # Competitive CTF write-up template
+│   └── vulnerability-advisory.md     # Production Application Security Advisory
 │
-├── tests/                            # Unit Test Suite for Tools
-│   ├── test_cipher_toolkit.py        # Verification of crypto decoding logic
-│   └── test_stego_inspector.py       # Verification of file header & stego checks
+├── tests/                            # Pytest Test Suite (100% Passing)
+│   ├── conftest.py                   # Test path configuration
+│   ├── test_cipher_toolkit.py        # Decoding & hash identification tests
+│   ├── test_rsa_toolkit.py           # RSA factoring & mathematical solver tests
+│   ├── test_pwn_helper.py            # Packing, cyclic offset, and ELF parser tests
+│   └── test_stego_inspector.py       # Header binary & trailing data tests
 │
-└── references/                       # Authoritative Security Standards & Cheatsheets
-    ├── owasp-top-10.md               # Summary of OWASP 2021/2025 categories
-    └── ctf-cheatsheet.md             # High-frequency CTF payload formulas & one-liners
+└── references/                       # Industry References & Cheatsheets
+    ├── owasp-top-10.md               # Summary of OWASP vulnerabilities & remediations
+    └── ctf-cheatsheet.md             # Curated payloads & solver formulas (Awesome-CTF & PayloadsAllTheThings)
 ```
-
----
-
-## File Purpose & Responsibility Matrix
-
-| Module | Core Responsibility |
-|---|---|
-| `knowledge/web-vulnerabilities.md` | Catalog of web attack primitives, injection vectors, and detection signatures. |
-| `knowledge/crypto-attacks.md` | Mathematical formulas and solver recipes for classical and modern cryptanalysis. |
-| `knowledge/forensics-multimodal.md` | Multimodal image/audio inspection protocols, magic bytes lookup table, and packet analysis. |
-| `knowledge/reverse-engineering.md` | Control flow reconstruction, decompiler pattern recognition, and register tracing. |
-| `knowledge/binary-exploitation.md` | Memory corruption exploitation patterns (stack, format string, ROP gadgets). |
-| `scripts/cipher_toolkit.py` | Command-line utility for instant multi-round decoding (Hex, Base32/64/85, Rot13, XOR, ASCII). |
-| `scripts/stego_inspector.py` | Inspects binary file headers, detects polyglot/embedded ZIPs, and scans visual anomalies. |
