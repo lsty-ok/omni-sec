@@ -1,6 +1,7 @@
 # omni-sec Architecture & Knowledge Mapping
 
 > Comprehensive index of cybersecurity knowledge bases, reasoning pipelines, standalone utility scripts, and output templates.
+> Enriched with patterns from: pwntools, RsaCtfTool, zsteg, PayloadsAllTheThings, and briiirussell/cybersecurity-skills.
 
 ```
 omni-sec/
@@ -14,6 +15,8 @@ omni-sec/
 │
 ├── knowledge/                        # Domain Knowledge Bases & Attack Vectors
 │   ├── web-vulnerabilities.md        # OWASP Top 10, SQLi, XSS, SSRF, IDOR, SSTI, Prototype Pollution
+│   ├── api-security.md               # OWASP API Top 10 (BOLA, BFLA, Mass Assignment, GraphQL)
+│   ├── ai-llm-security.md            # OWASP LLM Top 10, Prompt Injection, RAG Poisoning, Agent Guardrails
 │   ├── crypto-attacks.md             # RSA (Wiener, small e, Fermat), XOR, AES ECB/CBC, LCG PRNG
 │   ├── forensics-multimodal.md       # Magic bytes lookup, EXIF, LSB Stego, PCAP, Audio Spectrogram
 │   ├── reverse-engineering.md        # x86/x64 assembly, Ghidra/GDB tips, bytecode (pyc/apk/wasm)
@@ -28,6 +31,7 @@ omni-sec/
 │
 ├── scripts/                          # Standalone Python 3 Toolkits (Zero External Dependencies)
 │   ├── __init__.py                   # Package marker
+│   ├── sec_scanner.py                # Static secret & code vulnerability scanner CLI
 │   ├── cipher_toolkit.py             # Multi-layer decoder (Base64, Hex, ROT13, Caesar, XOR, Hash ID)
 │   ├── rsa_toolkit.py                # Pure-Python RSA Solvers (Wiener, Fermat, Small e, Common Modulus)
 │   ├── stego_inspector.py            # Magic bytes, trailing EOF data, polyglot ZIP, PNG LSB extractor
@@ -40,6 +44,7 @@ omni-sec/
 │
 ├── tests/                            # Pytest Test Suite (100% Passing)
 │   ├── conftest.py                   # Test path configuration
+│   ├── test_sec_scanner.py           # Secret & static vulnerability detection tests
 │   ├── test_cipher_toolkit.py        # Decoding & hash identification tests
 │   ├── test_rsa_toolkit.py           # RSA factoring & mathematical solver tests
 │   ├── test_pwn_helper.py            # Packing, cyclic offset, and ELF parser tests
