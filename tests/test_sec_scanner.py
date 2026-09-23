@@ -34,6 +34,20 @@ def test_scan_credential_file_access():
     assert any("Credential File" in f["label"] for f in findings)
 
 
+def test_scan_github_actions_context_injection():
+    workflow_yaml = """
+    name: Issue Responder
+    on: issues
+    jobs:
+      reply:
+        runs-on: ubuntu-latest
+        steps:
+          - run: echo "Title: ${{ github.event.issue.title }}"
+    """
+    findings = scan_content(workflow_yaml, filename=".github/workflows/issue.yml")
+    assert any("GitHub Actions Script Injection" in f["label"] for f in findings)
+
+
 def test_scan_clean_code():
     code = """
     import os

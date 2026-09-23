@@ -1,7 +1,7 @@
 # omni-sec Architecture & Knowledge Mapping
 
 > Comprehensive index of cybersecurity knowledge bases, reasoning pipelines, standalone utility scripts, and output templates.
-> Enriched with patterns from: pwntools, RsaCtfTool, zsteg, PayloadsAllTheThings, Claude-Red, accans-sec-skills, and opencode-security-agent.
+> Enriched with patterns from: Anthropic-Cybersecurity-Skills, pwntools, RsaCtfTool, zsteg, PayloadsAllTheThings, Claude-Red, accans-sec-skills, and opencode-security-agent.
 
 ```
 omni-sec/
@@ -18,7 +18,10 @@ omni-sec/
 │   ├── api-security.md               # OWASP API Top 10 (BOLA, BFLA, Mass Assignment, GraphQL)
 │   ├── ai-llm-security.md            # OWASP LLM Top 10, Prompt Injection, RAG Poisoning, Agent Guardrails
 │   ├── jwt-oauth-attacks.md          # JWT Algorithm Confusion, JWK Injection, kid Path Traversal, OAuth Flaws
+│   ├── websocket-cache-attacks.md    # CSWSH, Web Cache Poisoning & Web Cache Deception
+│   ├── cicd-supplychain-security.md  # GitHub Actions Context Injection, PR Target, SLSA Provenance
 │   ├── threat-modeling-stride.md     # STRIDE Framework (Spoofing, Tampering, Repudiation, Info Leak, DoS, EoP)
+│   ├── dfir-yara-threat-hunting.md   # YARA Rules, Windows DFIR Artifacts ($MFT/Prefetch), SQLite WAL Forensics
 │   ├── crypto-attacks.md             # RSA (Wiener, small e, Fermat), XOR, AES ECB/CBC, LCG PRNG
 │   ├── forensics-multimodal.md       # Magic bytes lookup, EXIF, LSB Stego, PCAP, Audio Spectrogram
 │   ├── reverse-engineering.md        # x86/x64 assembly, Ghidra/GDB tips, bytecode (pyc/apk/wasm)
@@ -33,7 +36,7 @@ omni-sec/
 │
 ├── scripts/                          # Standalone Python 3 Toolkits (Zero External Dependencies)
 │   ├── __init__.py                   # Package marker
-│   ├── sec_scanner.py                # Static secret, code smell, reverse shell, and MCP exfiltration scanner CLI
+│   ├── sec_scanner.py                # Static secret, code smell, CI/CD injection & MCP exfiltration scanner CLI
 │   ├── cipher_toolkit.py             # Multi-layer decoder (Base64, Hex, ROT13, Caesar, XOR, Brainfuck, Hash ID)
 │   ├── rsa_toolkit.py                # Pure-Python RSA Solvers (Wiener, Fermat, Small e, Common Modulus)
 │   ├── stego_inspector.py            # Magic bytes, trailing EOF data, polyglot ZIP, PNG LSB extractor
@@ -44,9 +47,9 @@ omni-sec/
 │   ├── ctf-writeup-template.md       # Competitive CTF write-up template
 │   └── vulnerability-advisory.md     # Production Application Security Advisory
 │
-├── tests/                            # Pytest Test Suite (31 Tests Passing 100%)
+├── tests/                            # Pytest Test Suite (32 Tests Passing 100%)
 │   ├── conftest.py                   # Test path configuration
-│   ├── test_sec_scanner.py           # Secret, vulnerability & reverse shell detection tests
+│   ├── test_sec_scanner.py           # Secret, vulnerability, CI/CD injection & reverse shell detection tests
 │   ├── test_cipher_toolkit.py        # Decoding, Brainfuck, XOR, and hash identification tests
 │   ├── test_rsa_toolkit.py           # RSA factoring & mathematical solver tests
 │   ├── test_pwn_helper.py            # Packing, cyclic offset, format string, and ELF parser tests
