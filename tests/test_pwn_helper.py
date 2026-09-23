@@ -6,6 +6,7 @@ from scripts.pwn_helper import (
     u64,
     cyclic,
     cyclic_find,
+    generate_format_string_leak,
     parse_elf_header,
     generate_gdb_init
 )
@@ -39,14 +40,19 @@ def test_cyclic_generation_and_find():
     assert offset_int == 4
 
 
+def test_format_string_generator():
+    leak_sweep = generate_format_string_leak(count=5)
+    assert leak_sweep == "%1$p.%2$p.%3$p.%4$p.%5$p"
+
+    direct_leak = generate_format_string_leak(direct_offset=7)
+    assert direct_leak == "%7$p"
+
+
 def test_elf_header_parser():
-    # Mock minimal 64-bit little-endian ELF header
-    # e_ident: 7f 45 4c 46 (ELF), 02 (64-bit), 01 (little endian), 01 (version)
     mock_elf = bytearray(64)
     mock_elf[0:4] = b'\x7fELF'
     mock_elf[4] = 2  # 64-bit
     mock_elf[5] = 1  # Little endian
-    # e_type = 2 (EXEC), e_machine = 62 (x86-64), e_version = 1, e_entry = 0x401000
     mock_elf[16:18] = b'\x02\x00'
     mock_elf[18:20] = b'\x3e\x00'
     mock_elf[24:32] = b'\x00\x10\x40\x00\x00\x00\x00\x00'

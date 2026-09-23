@@ -1,39 +1,61 @@
 import pytest
-from scripts.cipher_toolkit import decode_hex, decode_base64, decode_rot13, bruteforce_caesar, bruteforce_single_byte_xor, identify_hash_type, extract_flag
+from scripts.cipher_toolkit import (
+    decode_hex,
+    decode_base64,
+    decode_rot13,
+    decode_brainfuck,
+    bruteforce_caesar,
+    bruteforce_single_byte_xor,
+    identify_hash_type,
+    extract_flag
+)
+
 
 def test_decode_hex():
-    hex_str = "666c61677b6865785f746573747d"
-    assert decode_hex(hex_str) == "flag{hex_test}"
+    data = "666c61677b746573745f666c61677d"
+    assert decode_hex(data) == "flag{test_flag}"
+
 
 def test_decode_base64():
-    b64_str = "ZmxhZ3tiYXNlNjRfdGVzdH0="
-    assert decode_base64(b64_str) == "flag{base64_test}"
+    data = "ZmxhZ3t0ZXN0X2ZsYWd9"
+    assert decode_base64(data) == "flag{test_flag}"
+
 
 def test_decode_rot13():
-    rot_str = "synt{ebg13_grfg}"
-    assert decode_rot13(rot_str) == "flag{rot13_test}"
+    data = "synt{grfg_synt}"
+    assert decode_rot13(data) == "flag{test_flag}"
+
+
+def test_decode_brainfuck():
+    # 8 * 9 = 72 = 'H' in ASCII
+    bf_code = "++++++++[>+++++++++<-]>."
+    assert decode_brainfuck(bf_code) == "H"
+
 
 def test_bruteforce_caesar():
-    cipher = "iodj{fdhvdu_whvw}" # shift 3 for flag{caesar_test}
-    shifts = bruteforce_caesar(cipher)
-    found = [text for shift, text in shifts if "flag{caesar_test}" in text]
-    assert len(found) == 1
+    cipher = "khoor"
+    results = bruteforce_caesar(cipher)
+    shifts = {shift: text for shift, text in results}
+    assert shifts[3] == "hello"
+
 
 def test_single_byte_xor():
-    target = b"flag{xor_test}"
     key = 0x42
-    ciphertext = bytes([b ^ key for b in target])
-    candidates = bruteforce_single_byte_xor(ciphertext)
-    assert any("flag{xor_test}" in text for k, score, text in candidates)
+    original = b"the quick brown fox jumps over the lazy dog"
+    cipher = bytes([b ^ key for b in original])
+    candidates = bruteforce_single_byte_xor(cipher)
+    assert len(candidates) > 0
+    assert candidates[0][0] == key
+    assert candidates[0][2] == "the quick brown fox jumps over the lazy dog"
 
-def test_identify_hash():
-    md5_hash = "5d41402abc4b2a76b9719d911017c592"
-    assert "MD5" in identify_hash_type(md5_hash)
-    
-    sha256_hash = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    assert "SHA-256" in identify_hash_type(sha256_hash)
+
+def test_identify_hash_type():
+    assert "MD5" in identify_hash_type("5d41402abc4b2a76b9719d911017c592")
+    assert "SHA-256" in identify_hash_type("2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae")
+    assert "bcrypt" in identify_hash_type("$2a$12$R9h/cIPz0gi.URNNXRkh2OPST9/PgBkqquzi.Ss7KIUgO2t0jWMUW")
+
 
 def test_extract_flag():
-    text = "Congratulations! Here is your token: flag{s3cur1ty_pr0_fl4g} enjoy!"
-    flags = extract_flag(text)
-    assert flags == ["flag{s3cur1ty_pr0_fl4g}"]
+    sample = "Random prefix flag{hidden_flag_123} random suffix"
+    extracted = extract_flag(sample)
+    assert extracted == ["flag{hidden_flag_123}"]

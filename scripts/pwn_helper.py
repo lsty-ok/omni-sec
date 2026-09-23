@@ -1,7 +1,7 @@
 """
 Binary Exploitation (Pwn) and Triage Helper for omni-sec.
-Inspired by pwntools: Packing/unpacking, De Bruijn cyclic pattern generator & finder,
-and lightweight ELF/PE header analysis.
+Inspired by pwntools & Claude-Red: Packing/unpacking, De Bruijn cyclic pattern generator & finder,
+format string offset leak generator, and lightweight ELF/PE header analysis.
 Zero heavy external dependencies (pure Python standard library).
 """
 
@@ -45,7 +45,6 @@ def cyclic(length: int = 100, n: int = 4) -> bytes:
     charset = b"abcdefghijklmnopqrstuvwxyz"
     pattern = bytearray()
     
-    # Generate 4-byte unique sequences: aaaa, aaab, aaac, ...
     for c1 in charset:
         for c2 in charset:
             for c3 in charset:
@@ -60,12 +59,11 @@ def cyclic_find(subseq: Union[bytes, str, int], n: int = 4, max_len: int = 4096)
     """
     Finds the offset of a given substring or hex value inside the cyclic pattern.
     Accepts:
-      - bytes: b'laaa'
-      - str: "laaa"
-      - int: 0x6161616c (unpacked integer from crash register e.g. $eip or $rip)
+      - bytes: b'aaab'
+      - str: "aaab"
+      - int: 0x62616161 (unpacked integer from crash register e.g. $eip or $rip)
     """
     if isinstance(subseq, int):
-        # Unpack as little-endian 32-bit integer by default
         subseq_bytes = p32(subseq)
     elif isinstance(subseq, str):
         subseq_bytes = subseq.encode('latin1')
@@ -77,6 +75,17 @@ def cyclic_find(subseq: Union[bytes, str, int], n: int = 4, max_len: int = 4096)
     full_pattern = cyclic(max_len, n=n)
     offset = full_pattern.find(subseq_bytes[:n])
     return offset
+
+
+def generate_format_string_leak(count: int = 20, direct_offset: Optional[int] = None) -> str:
+    """
+    Generates format string leak payloads.
+    - If direct_offset is specified: "%<direct_offset>$p" (Direct parameter access)
+    - Otherwise: "%p." repeated count times (Stack sweep)
+    """
+    if direct_offset is not None:
+        return f"%{direct_offset}$p"
+    return ".".join([f"%{i}$p" for i in range(1, count + 1)])
 
 
 def parse_elf_header(data: bytes) -> Optional[Dict[str, Any]]:

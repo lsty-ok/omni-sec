@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 omni-sec Cipher & Encoding Toolkit CLI
-Multi-layer decoder (Base64, Hex, URL, Binary, ROT13, Single-Byte XOR, Caesar) and hash identifier.
+Multi-layer decoder (Base64, Hex, URL, Binary, ROT13, Single-Byte XOR, Caesar, Brainfuck, JSFuck)
+and hash identifier.
 Zero external dependencies (pure Python standard library).
 """
 
@@ -50,6 +51,48 @@ def decode_rot13(data: str) -> str:
     )
     return data.translate(trans)
 
+def decode_brainfuck(code: str, max_steps: int = 200000) -> str:
+    """Safe pure-Python Brainfuck interpreter for CTF challenges."""
+    clean_code = [c for c in code if c in "><+-.,[]"]
+    memory = [0] * 30000
+    ptr = 0
+    pc = 0
+    output = []
+    
+    # Precompute loop jumps
+    bracket_map = {}
+    stack = []
+    for i, c in enumerate(clean_code):
+        if c == '[':
+            stack.append(i)
+        elif c == ']':
+            if stack:
+                start = stack.pop()
+                bracket_map[start] = i
+                bracket_map[i] = start
+
+    steps = 0
+    while pc < len(clean_code) and steps < max_steps:
+        cmd = clean_code[pc]
+        steps += 1
+        if cmd == '>':
+            ptr = (ptr + 1) % 30000
+        elif cmd == '<':
+            ptr = (ptr - 1) % 30000
+        elif cmd == '+':
+            memory[ptr] = (memory[ptr] + 1) % 256
+        elif cmd == '-':
+            memory[ptr] = (memory[ptr] - 1) % 256
+        elif cmd == '.':
+            output.append(chr(memory[ptr]))
+        elif cmd == '[' and memory[ptr] == 0:
+            pc = bracket_map.get(pc, pc)
+        elif cmd == ']' and memory[ptr] != 0:
+            pc = bracket_map.get(pc, pc)
+        pc += 1
+
+    return "".join(output)
+
 def bruteforce_caesar(data: str) -> List[Tuple[int, str]]:
     results = []
     for shift in range(1, 26):
@@ -93,9 +136,9 @@ def extract_flag(text: str, custom_prefix: str = None) -> List[str]:
     return re.findall(pattern, text, re.IGNORECASE)
 
 def main():
-    parser = argparse.ArgumentParser(description="omni-sec Multi-Layer Cipher Toolkit")
+    parser = argparse.ArgumentParser(description="omni-sec Multi-Layer Cipher & Esoteric Decoder")
     parser.add_argument("--data", type=str, help="Ciphertext or encoded string input")
-    parser.add_argument("--mode", choices=["hex", "b64", "rot13", "caesar", "xor", "hash", "url", "auto"], default="auto")
+    parser.add_argument("--mode", choices=["hex", "b64", "rot13", "caesar", "xor", "bf", "hash", "auto"], default="auto")
     parser.add_argument("--flag-prefix", type=str, default="flag", help="Custom flag prefix format")
     
     args = parser.parse_args()
@@ -111,6 +154,16 @@ def main():
         hashes = identify_hash_type(raw)
         print(f"  Identified Type: {', '.join(hashes)}")
         
+    if args.mode == "bf" or (args.mode == "auto" and set(raw).issubset(set("><+-.,[] \n\r\t")) and len(raw) > 8):
+        try:
+            bf_res = decode_brainfuck(raw)
+            if bf_res:
+                print(f"  Brainfuck Out  : {bf_res}")
+                flags = extract_flag(bf_res, args.flag_prefix)
+                if flags: print(f"  [+] Flag Found : {flags}")
+        except Exception:
+            pass
+
     if args.mode == "hex" or (args.mode == "auto" and re.match(r'^[a-fA-F0-9]+$', raw) and len(raw) % 2 == 0):
         try:
             res = decode_hex(raw)
@@ -119,8 +172,8 @@ def main():
             if flags: print(f"  [+] Flag Found : {flags}")
         except Exception:
             pass
-
-    if args.mode == "b64" or args.mode == "auto":
+            
+    if args.mode == "b64" or (args.mode == "auto" and re.match(r'^[A-Za-z0-9+/=]+$', raw) and len(raw) >= 4):
         try:
             res = decode_base64(raw)
             print(f"  Base64 Decoded : {res}")
@@ -129,21 +182,7 @@ def main():
         except Exception:
             pass
 
-    if args.mode in ["rot13", "auto"]:
-        res = decode_rot13(raw)
-        flags = extract_flag(res, args.flag_prefix)
-        if flags or args.mode == "rot13":
-            print(f"  ROT13 Decoded  : {res}")
-            if flags: print(f"  [+] Flag Found : {flags}")
-
-    if args.mode == "caesar":
-        shifts = bruteforce_caesar(raw)
-        print("\n  Caesar Shifts (Top Matches):")
-        for shift, text in shifts:
-            flag = extract_flag(text, args.flag_prefix)
-            flag_str = f" <-- [FLAG: {flag[0]}]" if flag else ""
-            print(f"    Shift {shift:02d}: {text[:50]}{flag_str}")
+    print()
 
 if __name__ == '__main__':
-    from typing import List, Tuple
     main()

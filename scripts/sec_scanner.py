@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """
-omni-sec Static Code Security, API & Secret Scanner CLI
+omni-sec Static Code Security, Secret & MCP Poisoning Scanner CLI
 Fast, dependency-free scanner for:
 1. Hardcoded cloud keys (AWS, GCP, Stripe, GitHub, Slack, OpenAI, Anthropic)
 2. Insecure code patterns (SQLi string concat, eval/exec, raw dangerouslySetInnerHTML)
-3. API mass assignment & missing tenant predicates
-4. AI Prompt injection flaws (direct unsanitized prompt formatting)
+3. Reverse shells & Command Injection (/dev/tcp, nc -e, mkfifo, curl | bash)
+4. Credential & Data Exfiltration (.ssh, .aws, .kube, environment dumps)
+5. MCP Tool Poisoning & Prompt Injection flaws
 Zero external dependencies (pure Python standard library).
 """
 
@@ -15,7 +16,7 @@ import re
 import argparse
 from typing import Dict, List, Tuple, Any
 
-# Pattern definitions
+# Secret Pattern Definitions
 SECRET_PATTERNS = [
     (r'\b(AKIA[0-9A-Z]{16}|ASIA[0-9A-Z]{16})\b', "AWS Access Key ID"),
     (r'\b(AIza[0-9A-Za-z\-_]{35})\b', "Google API Key"),
@@ -25,12 +26,17 @@ SECRET_PATTERNS = [
     (r'\b(sk-[a-zA-Z0-9]{32,}|sk-ant-[a-zA-Z0-9\-_]{32,})\b', "OpenAI / Anthropic API Key"),
 ]
 
+# Vulnerability & Reverse Shell / Exfiltration Patterns
 CODE_SMELL_PATTERNS = [
     (r'(?:SELECT|INSERT|UPDATE|DELETE)\s+.*?\+\s*[\w\.\(\)]+', "Potential SQL Injection (String Concatenation)"),
     (r'\b(?:eval|exec)\s*\([^\)]*\)', "Dangerous Dynamic Code Execution (eval/exec)"),
     (r'subprocess\.(?:Popen|call|run)\s*\([^)]*shell\s*=\s*True[^)]*\)', "Subprocess with shell=True"),
     (r'dangerouslySetInnerHTML\s*=\s*\{\s*\{\s*__html\s*:\s*(?!DOMPurify\.sanitize)[^\}]+\}\s*\}', "Unsanitized dangerouslySetInnerHTML"),
     (r'f["\'].*?(?:system_prompt|prompt)\s*=\s*f["\'].*?\{user_input\}', "Direct Unsanitized Prompt Interpolation"),
+    (r'(?:/dev/tcp/[0-9\.]+|nc\s+(?:-e|--exec)|mkfifo\s+/tmp/)', "Potential Reverse Shell Signature"),
+    (r'curl\s+[^\|]+\|\s*(?:bash|sh|zsh)', "Unsafe Remote Script Pipe (curl | bash)"),
+    (r'(?:open|read|cat)\s*\(?["\'].*?(?:\.ssh/id_rsa|\.aws/credentials|\.kube/config|\.env)["\']', "Sensitive Credential File Read / Access"),
+    (r'requests\.(?:post|put)\s*\([^)]*(?:os\.environ|process\.env)', "Potential Environment Variable Exfiltration"),
 ]
 
 def scan_content(content: str, filename: str = "") -> List[Dict[str, Any]]:
@@ -50,7 +56,7 @@ def scan_content(content: str, filename: str = "") -> List[Dict[str, Any]]:
                     "match": matches[0][:8] + "..." + matches[0][-4:] if len(matches[0]) > 12 else "[REDACTED]"
                 })
 
-        # 2. Scan Code Smells
+        # 2. Scan Code Smells & Backdoors
         for pattern, label in CODE_SMELL_PATTERNS:
             if re.search(pattern, line, re.IGNORECASE):
                 findings.append({
@@ -74,7 +80,7 @@ def scan_file(filepath: str) -> List[Dict[str, Any]]:
         return []
 
 def main():
-    parser = argparse.ArgumentParser(description="omni-sec Static Code Security & Secret Scanner")
+    parser = argparse.ArgumentParser(description="omni-sec Static Code Security, Secret & MCP Scanner")
     parser.add_argument("--file", type=str, help="Target file to scan")
     parser.add_argument("--dir", type=str, help="Target directory to scan")
 
@@ -92,11 +98,11 @@ def main():
             if ".git" in root or "node_modules" in root or "__pycache__" in root:
                 continue
             for file in files:
-                if file.endswith(('.py', '.js', '.ts', '.tsx', '.jsx', '.json', '.env', '.yml', '.yaml')):
+                if file.endswith(('.py', '.js', '.ts', '.tsx', '.jsx', '.json', '.env', '.yml', '.yaml', '.sh', '.bash')):
                     targets.append(os.path.join(root, file))
 
     print("\n" + "="*60)
-    print(" [omni-sec Static Security & Secret Audit]")
+    print(" [omni-sec Static Security, Secret & MCP Audit]")
     print("="*60)
 
     total_findings = 0

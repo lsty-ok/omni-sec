@@ -1,7 +1,7 @@
 # omni-sec Architecture & Knowledge Mapping
 
 > Comprehensive index of cybersecurity knowledge bases, reasoning pipelines, standalone utility scripts, and output templates.
-> Enriched with patterns from: pwntools, RsaCtfTool, zsteg, PayloadsAllTheThings, and briiirussell/cybersecurity-skills.
+> Enriched with patterns from: pwntools, RsaCtfTool, zsteg, PayloadsAllTheThings, Claude-Red, accans-sec-skills, and opencode-security-agent.
 
 ```
 omni-sec/
@@ -17,6 +17,8 @@ omni-sec/
 │   ├── web-vulnerabilities.md        # OWASP Top 10, SQLi, XSS, SSRF, IDOR, SSTI, Prototype Pollution
 │   ├── api-security.md               # OWASP API Top 10 (BOLA, BFLA, Mass Assignment, GraphQL)
 │   ├── ai-llm-security.md            # OWASP LLM Top 10, Prompt Injection, RAG Poisoning, Agent Guardrails
+│   ├── jwt-oauth-attacks.md          # JWT Algorithm Confusion, JWK Injection, kid Path Traversal, OAuth Flaws
+│   ├── threat-modeling-stride.md     # STRIDE Framework (Spoofing, Tampering, Repudiation, Info Leak, DoS, EoP)
 │   ├── crypto-attacks.md             # RSA (Wiener, small e, Fermat), XOR, AES ECB/CBC, LCG PRNG
 │   ├── forensics-multimodal.md       # Magic bytes lookup, EXIF, LSB Stego, PCAP, Audio Spectrogram
 │   ├── reverse-engineering.md        # x86/x64 assembly, Ghidra/GDB tips, bytecode (pyc/apk/wasm)
@@ -31,23 +33,23 @@ omni-sec/
 │
 ├── scripts/                          # Standalone Python 3 Toolkits (Zero External Dependencies)
 │   ├── __init__.py                   # Package marker
-│   ├── sec_scanner.py                # Static secret & code vulnerability scanner CLI
-│   ├── cipher_toolkit.py             # Multi-layer decoder (Base64, Hex, ROT13, Caesar, XOR, Hash ID)
+│   ├── sec_scanner.py                # Static secret, code smell, reverse shell, and MCP exfiltration scanner CLI
+│   ├── cipher_toolkit.py             # Multi-layer decoder (Base64, Hex, ROT13, Caesar, XOR, Brainfuck, Hash ID)
 │   ├── rsa_toolkit.py                # Pure-Python RSA Solvers (Wiener, Fermat, Small e, Common Modulus)
 │   ├── stego_inspector.py            # Magic bytes, trailing EOF data, polyglot ZIP, PNG LSB extractor
-│   ├── pwn_helper.py                 # Pwn utilities (p32/p64/u32/u64, De Bruijn cyclic offset generator)
+│   ├── pwn_helper.py                 # Pwn utilities (p32/p64/u32/u64, De Bruijn cyclic offset, format string leaks)
 │   └── pcap_dissector.py             # PCAP parser, cleartext credential & HTTP request extractor
 │
 ├── templates/                        # Standardized Output Formats
 │   ├── ctf-writeup-template.md       # Competitive CTF write-up template
 │   └── vulnerability-advisory.md     # Production Application Security Advisory
 │
-├── tests/                            # Pytest Test Suite (100% Passing)
+├── tests/                            # Pytest Test Suite (31 Tests Passing 100%)
 │   ├── conftest.py                   # Test path configuration
-│   ├── test_sec_scanner.py           # Secret & static vulnerability detection tests
-│   ├── test_cipher_toolkit.py        # Decoding & hash identification tests
+│   ├── test_sec_scanner.py           # Secret, vulnerability & reverse shell detection tests
+│   ├── test_cipher_toolkit.py        # Decoding, Brainfuck, XOR, and hash identification tests
 │   ├── test_rsa_toolkit.py           # RSA factoring & mathematical solver tests
-│   ├── test_pwn_helper.py            # Packing, cyclic offset, and ELF parser tests
+│   ├── test_pwn_helper.py            # Packing, cyclic offset, format string, and ELF parser tests
 │   └── test_stego_inspector.py       # Header binary & trailing data tests
 │
 └── references/                       # Industry References & Cheatsheets
